@@ -25,7 +25,7 @@ public class VehicleRepository implements IVehicleRepository{
     public void load() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line;
-        while ((line = br.readLine()) !=  null){
+        while (( line = br.readLine()) !=  null){
             String[] v = line.split(";");
             if(v[0].equals("0")){
                 vehicles.add(new Car(Integer.parseInt(v[0]),v[1],v[2],v[3],v[4],Boolean.parseBoolean(v[5])));
@@ -34,14 +34,23 @@ public class VehicleRepository implements IVehicleRepository{
         System.out.println("Finished adding to list!");
     }
     @Override
-    public void rentVehicle(int index) throws IOException{
-        vehicles.get(index).setRented(true);
-        System.out.println("Vehicle :" + vehicles.get(index).toCsv() + " rented");
-
+    public void rentVehicle(int index){
+        boolean canRent = true;
+        for(Vehicle vehicle:vehicles){
+            if(vehicle.isRented()){
+                canRent = false;
+                System.out.println("You have rented car!");
+                break;
+            }
+        }
+        if(canRent && index >= 0){
+            vehicles.get(index - 1).setRented(true);
+            System.out.println(vehicles.get(index - 1).toString() + " rented");
+        }
     }
 
     @Override
-    public void returnVehicle() throws IOException{
+    public void returnVehicle(){
         vehicles.forEach(vehicle -> {
             if(vehicle.isRented()){
                 vehicle.setRented(false);

@@ -1,9 +1,7 @@
 import Repositories.VehicleRepository;
-import Vehicles.Car;
-import Vehicles.Motorcycle;
-
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) throws RuntimeException, IOException {
@@ -24,8 +22,9 @@ public class Main {
             }if(choose == 2){
                 vehicleRepository.returnVehicle();
             }if(choose == 3){
+                AtomicInteger ai = new AtomicInteger(1);
                 vehicleRepository.getVehicles().forEach(vehicle -> {
-                    System.out.println(vehicle.toString());
+                    System.out.println(ai.getAndIncrement() + " " +vehicle.toString());
                 });
             }
             vehicleRepository.save();
