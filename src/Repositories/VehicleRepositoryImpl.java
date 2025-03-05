@@ -8,16 +8,19 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VehicleRepository implements IVehicleRepository{
+public class VehicleRepositoryImpl implements IVehicleRepository{
     String path = "lab.csv";
-    List<Vehicle>vehicles;
-    public VehicleRepository(){
+    private final List<Vehicle>vehicles;
+    private List<Vehicle>deepCopyVehicles;
+
+    public VehicleRepositoryImpl(){
         vehicles = new ArrayList<>();
         try {
             load();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            deepCopyVehicles = getVehicles();
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -28,15 +31,17 @@ public class VehicleRepository implements IVehicleRepository{
         while (( line = br.readLine()) !=  null){
             String[] v = line.split(";");
             if(v[0].equals("0")){
-                vehicles.add(new Car(Integer.parseInt(v[0]),v[1],v[2],v[3],v[4],Boolean.parseBoolean(v[5])));
-            }else vehicles.add(new Motorcycle(Integer.parseInt(v[0]),v[1],v[2],v[3],v[4],Boolean.parseBoolean(v[5]),v[6]));
+                vehicles.add(new Car(0,v[1],v[2],v[3],v[4],Boolean.parseBoolean(v[5])));
+            }else{
+                vehicles.add(new Motorcycle(1,v[1],v[2],v[3],v[4],Boolean.parseBoolean(v[5]),v[6]));
+            }
         }
         System.out.println("Finished adding to list!");
     }
     @Override
     public void rentVehicle(int index){
         boolean canRent = true;
-        for(Vehicle vehicle:vehicles){
+        for(Vehicle vehicle:deepCopyVehicles){
             if(vehicle.isRented()){
                 canRent = false;
                 System.out.println("You have rented car!");
@@ -44,14 +49,14 @@ public class VehicleRepository implements IVehicleRepository{
             }
         }
         if(canRent && index >= 0){
-            vehicles.get(index - 1).setRented(true);
-            System.out.println(vehicles.get(index - 1).toString() + " rented");
+            deepCopyVehicles.get(index - 1).setRented(true);
+            System.out.println(deepCopyVehicles.get(index - 1).toString() + " rented");
         }
     }
 
     @Override
     public void returnVehicle(){
-        vehicles.forEach(vehicle -> {
+        deepCopyVehicles.forEach(vehicle -> {
             if(vehicle.isRented()){
                 vehicle.setRented(false);
                 System.out.println("Vehicle :" + vehicle.toCsv() + " returned");
@@ -59,9 +64,15 @@ public class VehicleRepository implements IVehicleRepository{
         });
     }
 
+
     @Override
-    public List<Vehicle> getVehicles(){
-        return vehicles;
+    public List<Vehicle> getVehicles() throws CloneNotSupportedException {
+        List<Vehicle> vehicleToCopy = new ArrayList<>();
+        for(Vehicle v:vehicles){
+            Vehicle vehicle = v.clone();
+            vehicleToCopy.add(vehicle);
+        }
+        return vehicleToCopy;
     }
 
     @Override

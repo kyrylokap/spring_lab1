@@ -1,5 +1,7 @@
 package Vehicles;
 
+import java.util.Objects;
+
 public class Car extends Vehicle{
 
     public Car(int id,String brand,String model,String year,String price, boolean rented) {
@@ -12,7 +14,7 @@ public class Car extends Vehicle{
     }
 
     @Override
-    public String toString()  {
+    public String toString(){
         return "Car{" +
                 "id=" + id +
                 ", brand='" + brand + '\'' +
@@ -26,5 +28,26 @@ public class Car extends Vehicle{
     @Override
     public String toCsv(){
         return id + ";" + brand + ";" + model + ";" + year + ";" + price + ";" + rented +"\n";
+    }
+
+    @Override
+    public boolean equals(Object o){
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
+
+    @Override
+    public Car clone(){
+        Car customer = null;
+        try {
+            customer = (Car) super.clone();
+        }catch (CloneNotSupportedException e) {
+            customer = new Car(id,brand,model,year,price,rented);
+        }
+        return customer;
     }
 }
